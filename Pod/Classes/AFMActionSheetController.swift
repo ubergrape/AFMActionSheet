@@ -24,7 +24,13 @@ public class AFMActionSheetController: UIViewController {
     @IBInspectable public var minTitleHeight: Int       = 50 {
         didSet { self.updateUI() }
     }
-    @IBInspectable public var spacing: Int              = 4  {
+    @IBInspectable public var spacing: Int = 8  {
+        didSet { self.updateUI() }
+    }
+    @IBInspectable public var spacingBetweenGroupAndCancel: Int = 8  {
+        didSet { self.updateUI() }
+    }
+    @IBInspectable public var verticalMarginToTop: Int  = 16 {
         didSet { self.updateUI() }
     }
     @IBInspectable public var horizontalMargin: Int     = 16 {
@@ -44,8 +50,6 @@ public class AFMActionSheetController: UIViewController {
     @IBInspectable public var spacingColor: UIColor = UIColor.clearColor() {
         didSet { self.updateUI() }
     }
-
-    public var dismissCompletionBlock: (() -> ())?
 
     let controllerStyle: ControllerStyle
 
@@ -127,41 +131,44 @@ public class AFMActionSheetController: UIViewController {
 
     // MARK: Adding actions
 
-    private func setupControlWithAction(control control: UIControl, action: AFMAction) {
+    public func addAction(action: AFMAction) {
+        let control = UIButton.controlWithAction(action)
+        self.addAction(action, control: control)
+    }
+
+    public func addCancelAction(action: AFMAction) {
+        let control = UIButton.controlWithAction(action, hasBoldTitle: true)
+        self.addCancelAction(action, control: control)
+    }
+
+    public func addAction(action: AFMAction, control: UIControl) {
+        self.addAction(action, control: control, isCancelAction: false)
+    }
+
+    public func addCancelAction(action: AFMAction, control: UIControl) {
+        self.addAction(action, control: control, isCancelAction: true)
+    }
+
+    func addAction(action: AFMAction, control: UIControl, isCancelAction: Bool) {
         control.enabled = action.enabled
         control.addTarget(self, action:#selector(AFMActionSheetController.handleTaps(_:)), forControlEvents: .TouchUpInside)
         control.tag = self.actions.count
-    }
 
-    public func addAction(action: AFMAction, control: UIControl, isCancelAction: Bool) {
-        setupControlWithAction(control: control, action: action)
         self.actions.append(action)
 
         if isCancelAction {
             self.cancelControls.append(control)
         } else {
-            self.actionControls.append(control)
+            // when it comes to non cancel controls, we want to position them from top to bottom
+            self.actionControls.insert(control, atIndex: 0)
         }
 
         self.addControlToGroupView(control: control, isCancelAction: isCancelAction)
     }
 
-    public func insertAction(action: AFMAction, control: UIControl, isCancelAction: Bool, position: Int) {
-        if isCancelAction {
-            guard position <= self.cancelControls.count else { return }
-        } else {
-            guard position <= self.actionControls.count else { return }
-        }
-        setupControlWithAction(control: control, action: action)
-        self.actions.append(action)
-
-        if isCancelAction {
-            self.cancelControls.insert(control, atIndex: position)
-        } else {
-            self.actionControls.insert(control, atIndex: position)
-        }
-
-        self.addControlToGroupView(control: control, isCancelAction: isCancelAction)
+    public func addTitle(title: String) {
+        let label = UILabel.titleWithText(title)
+        self.addTitleView(label)
     }
 
     public func addTitleView(titleView: UIView) {
@@ -200,7 +207,7 @@ public class AFMActionSheetController: UIViewController {
     private func actionControlsWithTitle() -> [UIView] {
         var views: [UIView] = self.actionControls
         if let titleView = self.titleView {
-            views.insert(titleView, atIndex: 0)
+            views.append(titleView)
         }
         return views
     }
@@ -229,7 +236,7 @@ public class AFMActionSheetController: UIViewController {
     func updateContraintsForAlert() {
         var views: [UIView] = self.actionControlsWithTitle()
         let cancelViews: [UIView] = self.cancelControls
-        views.appendContentsOf(cancelViews)
+        views.insertContentsOf(cancelViews, at: 0)
         self.actionGroupView.removeConstraints(self.actionControlConstraints)
         self.actionControlConstraints = self.constraintsForViews(views)
         self.actionGroupView.addConstraints(self.actionControlConstraints)
@@ -262,9 +269,9 @@ public class AFMActionSheetController: UIViewController {
         setupGroupView(self.actionGroupView)
         setupGroupView(self.cancelGroupView)
 
-        self.view.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("V:|-(>=margin)-[actionGroupView]-margin-[cancelGroupView]-margin-|",
+        self.view.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("V:|-(>=verticalMarginToTop)-[actionGroupView]-spacingBetweenGroupAndCancel-[cancelGroupView]-margin-|",
             options: .DirectionLeadingToTrailing,
-            metrics: ["margin": self.verticalMargin],
+            metrics: ["verticalMarginToTop": self.verticalMarginToTop, "margin": self.verticalMargin, "spacingBetweenGroupAndCancel" : self.spacingBetweenGroupAndCancel],
             views: ["actionGroupView": self.actionGroupView, "cancelGroupView": self.cancelGroupView])
         )
     }
@@ -289,20 +296,14 @@ public class AFMActionSheetController: UIViewController {
             attribute: .CenterY,
             multiplier: 1,
             constant: 0))
-
-        self.view.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("V:|-(>=margin)-[actionGroupView]-(>=margin)-|",
-            options: .DirectionLeadingToTrailing,
-            metrics: ["margin": self.verticalMargin],
-            views: ["actionGroupView": self.actionGroupView]))
     }
 
     private func constraintsForViews(views: [UIView]) -> [NSLayoutConstraint] {
         var constraints: [NSLayoutConstraint] = []
 
         var sibling: UIView?
-        // we want to position controls from top to bottom
-        for view in views.reverse() {
-            let isLast = view == views.first
+        for view in views {
+            let isLast = view == views.last
             constraints.appendContentsOf(self.horizontalConstraintsForView(view))
             constraints.appendContentsOf(self.verticalConstraintsForView(view, isLast: isLast, sibling: sibling))
 
@@ -359,9 +360,8 @@ public class AFMActionSheetController: UIViewController {
         let action = self.actions[index]
         if action.enabled {
             self.disableControls()
-            self.dismissViewControllerAnimated(true, completion: { [unowned self] _ in
+            self.dismissViewControllerAnimated(true, completion: { _ in
                 self.enableControls()
-                self.dismissCompletionBlock?()
                 action.handler?(action)
             })
         }
@@ -387,59 +387,8 @@ public class AFMActionSheetController: UIViewController {
         let point = gestureRecognizer.locationInView(self.view)
         let view = self.view.hitTest(point, withEvent: nil)
         if (view == self.view && self.outsideGestureShouldDismiss) {
-            self.disableControls()
-            self.dismissViewControllerAnimated(true, completion: { [unowned self] _ in
-                self.enableControls()
-                self.dismissCompletionBlock?()
-            })
+            self.dismissViewControllerAnimated(true, completion: nil)
         }
-    }
-}
-
-
-// MARK: - Helpers for adding views
-
-extension AFMActionSheetController {
-
-    public func addAction(action: AFMAction) {
-        let control = UIButton.controlWithAction(action)
-        self.addAction(action, control: control)
-    }
-
-    public func addCancelAction(action: AFMAction) {
-        let control = UIButton.controlWithAction(action)
-        self.addCancelAction(action, control: control)
-    }
-
-    public func addAction(action: AFMAction, control: UIControl) {
-        self.addAction(action, control: control, isCancelAction: false)
-    }
-
-    public func addCancelAction(action: AFMAction, control: UIControl) {
-        self.addAction(action, control: control, isCancelAction: true)
-    }
-
-    public func insertAction(action: AFMAction, position: Int) {
-        let control = UIButton.controlWithAction(action)
-        self.insertAction(action, control: control, position: position)
-    }
-
-    public func insertCancelAction(action: AFMAction, position: Int) {
-        let control = UIButton.controlWithAction(action)
-        self.insertCancelAction(action, control: control, position: position)
-    }
-
-    public func insertAction(action: AFMAction, control: UIControl, position: Int) {
-        self.insertAction(action, control: control, isCancelAction: false, position: position)
-    }
-
-    public func insertCancelAction(action: AFMAction, control: UIControl, position: Int) {
-        self.insertAction(action, control: control, isCancelAction: true, position: position)
-    }
-
-    public func addTitle(title: String) {
-        let label = UILabel.titleWithText(title)
-        self.addTitleView(label)
     }
 }
 
@@ -447,15 +396,31 @@ extension AFMActionSheetController {
 // MARK: - Default control
 
 extension UIButton {
-    class func controlWithAction(action: AFMAction) -> UIButton {
+    class func controlWithAction(action: AFMAction, hasBoldTitle: Bool = false) -> UIButton {
         let button = UIButton()
         button.backgroundColor = UIColor.whiteColor()
-        button.setTitle(action.title, forState: .Normal)
-        button.setTitleColor(UIColor.darkTextColor(), forState: .Normal)
-        button.setTitleColor(UIColor.darkTextColor().colorWithAlphaComponent(0.5), forState: .Disabled)
-        button.setTitleColor(UIColor.redColor(), forState: .Highlighted)
-
+        button.setTitleColor(UIColor(red: 0, green: 122.0 / 255.0, blue: 1.0, alpha: 1.0), forState: .Normal)
+        
+        if (hasBoldTitle) {
+            button.setAttributedTitle(NSAttributedString(string: action.title, attributes: [NSFontAttributeName: UIFont.boldSystemFontOfSize(18.0), NSForegroundColorAttributeName: UIColor(red: 0, green: 122.0 / 255.0, blue: 1.0, alpha: 1.0)]), forState: .Normal)
+        } else {
+            button.setTitle(action.title, forState: .Normal)
+        }
+        
+        button.setBackgroundColor(UIColor.whiteColor(), forState: .Normal)
+        button.setBackgroundColor(UIColor(red: 240.0/255.0, green: 240.0/255.0, blue: 240.0/255.0, alpha: 1.0), forState: .Highlighted)
+        
         return button
+    }
+    
+    func setBackgroundColor(color: UIColor, forState: UIControlState) {
+        UIGraphicsBeginImageContext(CGSize(width: 1, height: 1))
+        CGContextSetFillColorWithColor(UIGraphicsGetCurrentContext(), color.CGColor)
+        CGContextFillRect(UIGraphicsGetCurrentContext(), CGRect(x: 0, y: 0, width: 1, height: 1))
+        let colorImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        
+        self.setBackgroundImage(colorImage, forState: forState)
     }
 }
 

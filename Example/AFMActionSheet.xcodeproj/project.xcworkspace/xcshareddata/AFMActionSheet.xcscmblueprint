@@ -1,0 +1,30 @@
+{
+  "DVTSourceControlWorkspaceBlueprintPrimaryRemoteRepositoryKey" : "CB418B333AB5AFD6F86947052EE5CBE96439EBA8",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyRepositoryLocationsKey" : {
+
+  },
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyStatesKey" : {
+    "CB418B333AB5AFD6F86947052EE5CBE96439EBA8" : 0,
+    "4D27C913E0ECA06529FB4747C222924453186811" : 0
+  },
+  "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "5EA26464-E874-475E-BCAE-08D4B315CF99",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
+    "CB418B333AB5AFD6F86947052EE5CBE96439EBA8" : "AFMActionSheet\/",
+    "4D27C913E0ECA06529FB4747C222924453186811" : ".."
+  },
+  "DVTSourceControlWorkspaceBlueprintNameKey" : "AFMActionSheet",
+  "DVTSourceControlWorkspaceBlueprintVersion" : 204,
+  "DVTSourceControlWorkspaceBlueprintRelativePathToProjectKey" : "Example\/AFMActionSheet.xcodeproj",
+  "DVTSourceControlWorkspaceBlueprintRemoteRepositoriesKey" : [
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/ubergrape\/chatgrape_ios",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "4D27C913E0ECA06529FB4747C222924453186811"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/ubergrape\/AFMActionSheet",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "CB418B333AB5AFD6F86947052EE5CBE96439EBA8"
+    }
+  ]
+}
