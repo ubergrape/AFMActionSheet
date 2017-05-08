@@ -8,8 +8,17 @@
 
 import UIKit
 
+public protocol AFMActionSheetControllerDelegate {
+    
+    func AFMActionSheetWillDismiss()
+    
+}
+
+
 @IBDesignable
 public class AFMActionSheetController: UIViewController {
+    
+    @IBInspectable public var actionSheetDelegate: AFMActionSheetControllerDelegate?
     
     public enum ControllerStyle : Int {
         case ActionSheet
@@ -360,6 +369,10 @@ public class AFMActionSheetController: UIViewController {
         let action = self.actions[index]
         if action.enabled {
             self.disableControls()
+            
+            // Inform delegate
+            self.actionSheetDelegate?.AFMActionSheetWillDismiss()
+            
             self.dismiss(animated: true, completion: { _ in
                 self.enableControls()
                 action.handler?(action)
@@ -387,7 +400,10 @@ public class AFMActionSheetController: UIViewController {
         let point = gestureRecognizer.location(in: self.view)
         let view = self.view.hitTest(point, with: nil)
         if (view == self.view && self.outsideGestureShouldDismiss) {
-            self.dismiss(animated: true, completion: nil)
+            // Inform delegate
+            self.actionSheetDelegate?.AFMActionSheetWillDismiss()
+            self.dismiss(animated: true, completion: { _ in
+            })
         }
     }
 }
