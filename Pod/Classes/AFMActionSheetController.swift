@@ -18,7 +18,7 @@ public protocol AFMActionSheetControllerDelegate {
 @IBDesignable
 public class AFMActionSheetController: UIViewController {
     
-    @IBInspectable public var actionSheetDelegate: AFMActionSheetControllerDelegate?
+    public var actionSheetDelegate: AFMActionSheetControllerDelegate?
     
     public enum ControllerStyle : Int {
         case ActionSheet
@@ -189,7 +189,7 @@ public class AFMActionSheetController: UIViewController {
     }
     
     
-    private func addControlToGroupView(control control: UIControl, isCancelAction: Bool) {
+    private func addControlToGroupView(control: UIControl, isCancelAction: Bool) {
         if self.controllerStyle == .ActionSheet {
             self.addControlToGroupViewForActionSheet(control: control, isCancelAction: isCancelAction)
         } else if self.controllerStyle == .Alert {
@@ -197,7 +197,7 @@ public class AFMActionSheetController: UIViewController {
         }
     }
     
-    private func addControlToGroupViewForActionSheet(control control: UIControl, isCancelAction: Bool) {
+    private func addControlToGroupViewForActionSheet(control: UIControl, isCancelAction: Bool) {
         control.translatesAutoresizingMaskIntoConstraints = false
         if isCancelAction {
             self.cancelGroupView.addSubview(control)
@@ -207,7 +207,7 @@ public class AFMActionSheetController: UIViewController {
         self.updateContraints()
     }
     
-    private func addControlToGroupViewForAlert(control control: UIControl, isCancelAction: Bool) {
+    private func addControlToGroupViewForAlert(control: UIControl, isCancelAction: Bool) {
         control.translatesAutoresizingMaskIntoConstraints = false
         self.actionGroupView.addSubview(control)
         self.updateContraints()

@@ -15,8 +15,8 @@ public class AFMPresentationAnimator: NSObject, UIViewControllerAnimatedTransiti
     }
     
     public func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {
-        let fromViewController = transitionContext.viewController(forKey: UITransitionContextViewControllerKey.from) as UIViewController!
-        let toViewController = transitionContext.viewController(forKey: UITransitionContextViewControllerKey.to) as UIViewController!
+        let fromViewController = transitionContext.viewController(forKey: UITransitionContextViewControllerKey.from) as UIViewController?
+        let toViewController = transitionContext.viewController(forKey: UITransitionContextViewControllerKey.to) as UIViewController?
         
         let finalFrame = transitionContext.initialFrame(for: fromViewController!)
         
@@ -24,7 +24,7 @@ public class AFMPresentationAnimator: NSObject, UIViewControllerAnimatedTransiti
         transitionContext.containerView.addSubview((toViewController?.view)!)
         
         let views = toViewController?.view.subviews
-        let viewCount = Double((views?.count)!)
+        // let viewCount = Double((views?.count)!)
         var index = 0
         
         for view in views! {

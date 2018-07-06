@@ -16,13 +16,13 @@ public class AFMDismissalAnimator: NSObject, UIViewControllerAnimatedTransitioni
     }
     
     public func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {
-        let fromViewController = transitionContext.viewController(forKey: UITransitionContextViewControllerKey.from) as UIViewController!
+        let fromViewController = transitionContext.viewController(forKey: UITransitionContextViewControllerKey.from) as UIViewController?
         
         let initialFrame = transitionContext.initialFrame(for: fromViewController!)
         transitionContext.containerView.addSubview(fromViewController!.view)
         
         let views = Array(fromViewController!.view.subviews.reversed())
-        let viewCount = Double(views.count)
+        //let viewCount = Double(views.count)
         var index = 0
         
         for view in views {
