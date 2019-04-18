@@ -42,7 +42,7 @@ public class AFMPresentationAnimator: NSObject, UIViewControllerAnimatedTransiti
         toViewController?.view.backgroundColor = backgroundColor?.withAlphaComponent(0)
         
         UIView.animate(withDuration: self.transitionDuration(using: transitionContext),
-                       animations: { _ in
+                       animations: {
                         toViewController?.view.backgroundColor = backgroundColor
         }) { _ in
             transitionContext.completeTransition(true)

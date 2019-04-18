@@ -38,7 +38,7 @@ public class AFMDismissalAnimator: NSObject, UIViewControllerAnimatedTransitioni
         let backgroundColor = fromViewController?.view.backgroundColor!
         
         UIView.animate(withDuration: self.transitionDuration(using: transitionContext),
-                       animations: { _ in
+                       animations: {
                         fromViewController?.view.backgroundColor = backgroundColor?.withAlphaComponent(0)
         }) { _ in
             transitionContext.completeTransition(true)

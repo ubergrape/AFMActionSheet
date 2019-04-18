@@ -123,7 +123,7 @@ public class AFMActionSheetController: UIViewController {
         }
         
         let swipeGestureRecognizer = UISwipeGestureRecognizer(target: self, action: #selector(AFMActionSheetController.recognizeGestures(gestureRecognizer:)))
-        swipeGestureRecognizer.direction = UISwipeGestureRecognizerDirection.down
+        swipeGestureRecognizer.direction = UISwipeGestureRecognizer.Direction.down
         let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(AFMActionSheetController.recognizeGestures(gestureRecognizer:)))
         tapGestureRecognizer.cancelsTouchesInView = false
         
@@ -364,7 +364,7 @@ public class AFMActionSheetController: UIViewController {
     
     // MARK: Event handling
     
-    func handleTaps(sender: UIControl) {
+    @objc func handleTaps(sender: UIControl) {
         let index = sender.tag
         let action = self.actions[index]
         if action.enabled {
@@ -373,7 +373,7 @@ public class AFMActionSheetController: UIViewController {
             // Inform delegate
             self.actionSheetDelegate?.AFMActionSheetWillDismiss()
             
-            self.dismiss(animated: true, completion: { _ in
+            self.dismiss(animated: true, completion: {
                 self.enableControls()
                 action.handler?(action)
             })
@@ -396,13 +396,13 @@ public class AFMActionSheetController: UIViewController {
         }
     }
     
-    func recognizeGestures(gestureRecognizer: UIGestureRecognizer) {
+    @objc func recognizeGestures(gestureRecognizer: UIGestureRecognizer) {
         let point = gestureRecognizer.location(in: self.view)
         let view = self.view.hitTest(point, with: nil)
         if (view == self.view && self.outsideGestureShouldDismiss) {
             // Inform delegate
             self.actionSheetDelegate?.AFMActionSheetWillDismiss()
-            self.dismiss(animated: true, completion: { _ in
+            self.dismiss(animated: true, completion: {
             })
         }
     }
@@ -418,7 +418,7 @@ extension UIButton {
         button.setTitleColor(UIColor(red: 0, green: 122.0 / 255.0, blue: 1.0, alpha: 1.0), for: .normal)
         
         if (hasBoldTitle) {
-            button.setAttributedTitle(NSAttributedString(string: action.title, attributes: [NSFontAttributeName: UIFont.boldSystemFont(ofSize: 18.0), NSForegroundColorAttributeName: UIColor(red: 0, green: 122.0 / 255.0, blue: 1.0, alpha: 1.0)]), for: .normal)
+            button.setAttributedTitle(NSAttributedString(string: action.title, attributes: [NSAttributedString.Key.font: UIFont.boldSystemFont(ofSize: 18.0), NSAttributedString.Key.foregroundColor: UIColor(red: 0, green: 122.0 / 255.0, blue: 1.0, alpha: 1.0)]), for: .normal)
         } else {
             button.setTitle(action.title, for: .normal)
         }
@@ -429,7 +429,7 @@ extension UIButton {
         return button
     }
     
-    func setBackgroundColor(color: UIColor, forState: UIControlState) {
+    func setBackgroundColor(color: UIColor, forState: UIControl.State) {
         UIGraphicsBeginImageContext(CGSize(width: 1, height: 1))
         UIGraphicsGetCurrentContext()!.setFillColor(color.cgColor)
         UIGraphicsGetCurrentContext()!.fill(CGRect(x: 0, y: 0, width: 1, height: 1))
